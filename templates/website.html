@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فَاتُورةWise - Invoice to Intelligent Decisions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables for Dark and Light Mode */
+        :root {
+            /* Dark Mode Colors (Default) */
+            --bg-primary: #1a202c; /* Dark background (gray-900 equivalent) */
+            --bg-secondary: #1f2937; /* Card/container background (gray-800 equivalent) */
+            --bg-tertiary: #374151; /* Deeper background for chat/response (gray-700 equivalent) */
+            --text-primary: #ffffff; /* Changed to white as requested */
+            --text-secondary: #cbd5e0; /* Slightly darker light text (gray-300 equivalent) */
+            --accent-primary: #6d28d9; /* Purple for buttons (purple-600 equivalent) */
+            --accent-hover: #5b21b6; /* Darker purple for button hover (purple-700 equivalent) */
+            --accent-light: #93c5fd; /* Light blue for headings (blue-300/400 equivalent) - now only for specific elements */
+            --accent-bold: #a78bfa; /* Light purple for bold text (purple-400 equivalent) */
+            --border-color: #4b5563; /* Dark border (gray-600 equivalent) */
+            --sidebar-bg: #2d3748; /* Sidebar background (gray-800 equivalent) */
+            --topbar-bg: #2d3748; /* Top bar background (gray-800 equivalent) */
+            --icon-color: #e2e8f0; /* Light icons */
+            --nav-link-hover-bg: #4a5568; /* Nav link hover background (gray-700 equivalent) */
+            --toast-bg-success: #28a745;
+            --toast-bg-error: #dc3545;
+            --toast-bg-info: #17a2b8;
+            --toast-text: white;
+            --toggle-bg: #4a5568; /* Background for the toggle switch */
+            --toggle-circle: #e2e8f0; /* Circle for the toggle switch */
+            --alert-new-bg: #4a5568; /* Background for new alerts (similar to nav link hover) */
+            --alert-new-text: #e2e8f0; /* Text for new alerts */
+            --alert-seen-bg: #2d3748; /* Background for seen alerts (similar to sidebar bg) */
+            --alert-seen-text: #cbd5e0; /* Text for seen alerts */
+            --error-text: #dc3545; /* Red for error messages */
+            --powerbi-placeholder-bg: #1f2937; /* Gray-800 for Power BI placeholder */
+            --powerbi-placeholder-text: #9ca3af; /* Gray-400 for Power BI placeholder text */
+            --color-border-header: #374151; /* Used for sidebar border-t */
+
+            /* Theme toggle icon colors */
+            --icon-sun-color: #9ca3af; /* Gray for sun in dark mode (inactive) */
+            --icon-moon-color: #60a5fa; /* Blue for moon in dark mode (active) */
+        }
+
+        [data-theme="light"] {
+            /* Light Mode Colors */
+            --bg-primary: #f7fafc; /* Light background */
+            --bg-secondary: #ffffff; /* Card/container background */
+            --bg-tertiary: #e2e8f0; /* Response container background */
+            --text-primary: #2d3748; /* Dark text */
+            --text-secondary: #4a5568; /* Slightly lighter dark text */
+            --accent-primary: #7c3aed; /* Purple for buttons, slightly lighter */
+            --accent-hover: #6d28d9; /* Darker purple for button hover */
+            --accent-light: #4299e1; /* Blue for headings - now only for specific elements */
+            --accent-bold: #805ad5; /* Medium purple for bold text */
+            --border-color: #cbd5e0; /* Light border */
+            --sidebar-bg: #edf2f7; /* Sidebar background */
+            --topbar-bg: #edf2f7; /* Top bar background */
+            --icon-color: #2d3748; /* Dark icons */
+            --nav-link-hover-bg: #cbd5e0; /* Nav link hover background */
+            --toggle-bg: #cbd5e0; /* Background for the toggle switch */
+            --toggle-circle: #2d3748; /* Circle for the toggle switch */
+            --alert-new-bg: #e2e8f0; /* Background for new alerts in light mode */
+            --alert-new-text: #2d3748; /* Text for new alerts in light mode */
+            --alert-seen-bg: #f0f4f7; /* Background for seen alerts in light mode */
+            --alert-seen-text: #4a5568; /* Text for seen alerts in light mode */
+            --error-text: #dc3545; /* Red for error messages */
+            --powerbi-placeholder-bg: #e2e8f0; /* Light gray for Power BI placeholder */
+            --powerbi-placeholder-text: #6b7280; /* Darker gray for Power BI placeholder text */
+            --color-border-header: #d1d5db; /* Light border for sidebar border-t */
+
+            /* Theme toggle icon colors for light mode */
+            --icon-sun-color: #facc15; /* Yellow for sun in light mode (active) */
+            --icon-moon-color: #9ca3af; /* Gray for moon in light mode (inactive) */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow-x: hidden; /* Prevent horizontal scroll when sidebar is off-screen */
+            background-color: var(--bg-primary); /* Apply theme background */
+            color: var(--text-primary); /* Apply theme text color */
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Fixed Top Bar Styles */
+        .top-bar {
+            height: 55px; /* Define height for the top bar */
+            z-index: 1000; /* Ensure it's above other content */
+            position: fixed; /* Make the top bar fixed */
+            top: 0;
+            left: 0;
+            right: 0; /* Ensure it spans the full width */
+            display: flex; /* Make it a flex container */
+            align-items: center; /* Align items vertically in the center */
+            padding: 1rem; /* Add some padding */
+            background-color: var(--topbar-bg); /* Apply theme background */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+        }
+
+        /* Custom CSS for sidebar transition and responsiveness */
+        .sidebar {
+            width: 60px; /* Collapsed width: only icons visible */
+            transition: width 0.3s ease-in-out, background-color 0.3s ease; /* Smooth transition for width and color */
+            z-index: 999; /* Ensure sidebar is below top bar but above main content */
+            position: fixed;
+            top: 74px; /* Adjusted: 64px (top bar height) + 10px (space) */
+            left: 0;
+            height: calc(100% - 74px); /* Adjusted: 100% - (top bar height + space) */
+            overflow-x: hidden; /* Hide horizontal scrollbar when text is hidden */
+            overflow-y: auto; /* Allow vertical scrolling if content overflows */
+            display: flex;
+            flex-direction: column;
+            padding: 1rem 0; /* Keeps internal padding */
+            white-space: nowrap; /* Prevent text wrapping inside collapsed sidebar */
+            background-color: var(--sidebar-bg); /* Apply theme background */
+            box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar.open {
+            width: 250px; /* Expanded width */
+        }
+
+        /* Hide text by default, show on open */
+        .sidebar .nav-link span,
+        .sidebar #churn-alerts-link span,
+        .sidebar .sidebar-top-item span { /* Apply to sidebar-top-item span as well */
+            opacity: 0;
+            width: 0; /* Collapse width to hide text */
+            overflow: hidden; /* Hide overflowing text */
+            transition: opacity 0.1s ease-in-out, width 0.3s ease-in-out;
+            margin-left: 0.75rem; /* Space between icon and text */
+        }
+
+        .sidebar.open .nav-link span,
+        .sidebar.open #churn-alerts-link span,
+        .sidebar.open .sidebar-top-item span { /* Apply to sidebar-top-item span as well */
+            opacity: 1;
+            width: auto; /* Expand width to show text */
+            transition-delay: 0.1s; /* Delay showing text slightly after width transition starts */
+        }
+
+        .main-content {
+            flex-grow: 1;
+            margin-left: 80px; /* Initial margin for collapsed sidebar */
+            margin-top: 64px; /* Margin for the fixed top bar */
+            transition: margin-left 0.3s ease-in-out; /* Transition for margin */
+            padding: 1.5rem; /* Add padding to main content */
+            background-color: var(--bg-primary); /* Ensure main content uses primary background */
+            color: var(--text-primary); /* Ensure main content uses primary text color */
+        }
+
+        .main-content.shifted {
+            margin-left: 250px; /* Margin when sidebar is open */
+        }
+
+        /* Adjust icon positioning and margins for both states */
+        .sidebar .nav-link,
+        .sidebar #churn-alerts-link > div,
+        .sidebar .sidebar-top-item { /* Apply to sidebar-top-item as well */
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Center icons horizontally when collapsed */
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            width: auto; /* Let content define width within padding */
+            color: var(--icon-color); /* Apply theme icon color */
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .sidebar .nav-link:hover,
+        .sidebar #churn-alerts-link > div:hover,
+        .sidebar .sidebar-top-item:hover {
+            background-color: var(--nav-link-hover-bg); /* Apply theme hover background */
+        }
+
+        .sidebar.open .nav-link,
+        .sidebar.open #churn-alerts-link > div,
+        .sidebar.open .sidebar-top-item { /* Apply to sidebar-top-item as well */
+            justify-content: flex-start; /* Align to start when open */
+        }
+
+        /* Specific styles for icons in collapsed state to maintain appearance */
+        .sidebar .nav-link i,
+        .sidebar #churn-alerts-link i,
+        .sidebar .sidebar-top-item i { /* Apply to sidebar-top-item i as well */
+            margin-right: 0; /* Remove margin when collapsed */
+            font-size: 1.25rem;
+            transition: margin-right 0.3s ease-in-out;
+        }
+
+        .sidebar.open .nav-link i,
+        .sidebar.open .sidebar-top-item i { /* Apply to sidebar-top-item i as well */
+            margin-right: 0.75rem; /* Standard margin when open */
+        }
+        /* Specific style for the active nav link */
+        .nav-link.active-link,
+        .sidebar #churn-alerts-link > div.active-link {
+            background-color: var(--accent-primary); /* Active background color */
+            color: white; /* Active text color */
+        }
+        .nav-link.active-link:hover,
+        .sidebar #churn-alerts-link > div.active-link:hover {
+            background-color: var(--accent-hover); /* Keep hover consistent with active */
+        }
+
+
+        /* Toast Notification Styles */
+        #toast-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--bg-secondary); /* Use theme background */
+            color: var(--toast-text); /* Use theme text */
+            padding: 15px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out, visibility 0.3s;
+            z-index: 1000;
+        }
+
+        #toast-notification.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        #toast-notification.success {
+            background-color: var(--toast-bg-success); /* Green */
+        }
+
+        #toast-notification.error {
+            background-color: var(--toast-bg-error); /* Red */
+        }
+
+        #toast-notification.info {
+            background-color: var(--toast-bg-info); /* Blue */
+        }
+
+        .toast-notification .close-btn {
+            background: none;
+            border: none;
+            color: var(--toast-text); /* Use theme text */
+            font-size: 1.2rem;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        /* Sidebar trigger area - now a narrow strip on the left */
+        #sidebar-trigger {
+            position: fixed;
+            top: 74px; /* Adjusted: 64px (top bar height) + 10px (space) */
+            left: 0;
+            height: calc(100% - 74px); /* Adjusted: 100% - (top bar height + space) */
+            width: 10px; /* Small area to trigger hover */
+            z-index: 1001; /* Higher z-index than sidebar to capture mouseenter first */
+            background-color: transparent; /* Invisible */
+        }
+
+        /* Page Content Containers */
+        .page-content {
+            background-color: var(--bg-primary); /* Ensure pages have primary background */
+            color: var(--text-primary); /* Ensure pages have primary text color */
+            padding: 1.5rem; /* Consistent padding */
+            border-radius: 0.5rem; /* Consistent rounded corners */
+        }
+
+        /* General Container Styling (used for advisor-container, and similar blocks) */
+        .general-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--bg-secondary); /* Apply theme background */
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            color: var(--text-primary); /* Apply theme text color */
+            text-align: center;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        /* Removed explicit accent-light color for h1, h2, h3 to make them white */
+        .general-container h1, .general-container h2, .general-container h3 {
+            text-align: center; /* Default to center, can be overridden */
+            color: var(--text-primary); /* Ensure headings are white in dark mode */
+        }
+        .general-container p {
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .general-button {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 12px 20px;
+            background-color: var(--accent-primary); /* Apply theme accent color */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .general-button:hover {
+            background-color: var(--accent-hover); /* Apply theme hover color */
+        }
+        .general-response-container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: var(--bg-tertiary); /* Apply theme background */
+            border-radius: 8px;
+            border: 1px solid var(--border-color); /* Apply theme border color */
+            display: none; /* Hidden by default */
+            color: var(--text-primary); /* Apply theme text color */
+            text-align: right; /* Align entire response container to the right */
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+        .general-response-container h2 {
+            color: var(--accent-light); /* Apply theme accent color */
+            border-bottom: 1px solid var(--border-color); /* Apply theme border color */
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        .loading-spinner {
+            display: none; /* Hidden by default */
+            border: 4px solid var(--border-color); /* Apply theme border color */
+            border-top: 4px solid var(--accent-primary); /* Use accent color for spinner top */
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .output-content { /* Renamed from #advisorOutput to a generic class */
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap; /* Maintains line breaks and spaces */
+            word-wrap: break-word;
+            color: var(--text-primary); /* Ensure text is light on dark background */
+            font-size: 1.05em; /* Slightly larger text for readability */
+            line-height: 2.0; /* Increased line height for better spacing for Arabic text */
+            text-align: right; /* Right-align text within the output div */
+            direction: rtl; /* Set text direction to right-to-left for Arabic */
+        }
+        /* Custom styling for bold text within the output */
+        .output-content strong {
+            color: var(--accent-bold); /* A prominent light purple color for bolded sections */
+            font-weight: 700; /* Ensure strong bolding */
+            font-size: 1.1em; /* Slightly larger font for titles */
+            display: block; /* Make bold titles appear on their own line */
+            margin-top: 15px; /* Add space above each bold title */
+            margin-bottom: 5px; /* Add space below each bold title */
+        }
+        #churn-alert-count {
+            position: absolute; /* Make it absolutely positioned */
+            top: -8px; /* Adjust as needed to move it above */
+            right: 8px; /* Adjust as needed to move it to the right */
+            /* Ensure it's always a circle, even with 0 or 1 digit */
+            width: 24px; /* Fixed width */
+            height: 24px; /* Fixed height */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0; /* Remove padding as width/height define size */
+            font-size: 0.75rem; /* Adjust font size if necessary */
+            z-index: 10; /* Ensure it's above other elements */
+            background-color: #ef4444; /* Red color for alerts */
+            color: white;
+            border-radius: 9999px; /* Full rounded for circle */
+        }
+
+        /* Theme Toggle Switch Styles */
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            margin-left: auto; /* Pushes the switch to the right */
+            gap: 0.5rem;
+        }
+
+        .theme-switch {
+            display: inline-block;
+            height: 24px;
+            position: relative;
+            width: 48px;
+            cursor: pointer;
+        }
+
+        .theme-switch input {
+            display: none;
+        }
+
+        .slider {
+            background-color: var(--toggle-bg);
+            bottom: 0;
+            left: 0;
+            right: 0;
+            top: 0;
+            cursor: pointer;
+            position: absolute;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            background-color: var(--toggle-circle);
+            bottom: 2px;
+            content: "";
+            height: 20px;
+            left: 2px;
+            position: absolute;
+            transition: .4s;
+            width: 20px;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent-primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Apply theme-specific colors to icons */
+        #sun-icon {
+            color: var(--icon-sun-color);
+            transition: color 0.3s ease;
+        }
+        #moon-icon {
+            color: var(--icon-moon-color);
+            transition: color 0.3s ease;
+        }
+
+        /* Chatbot specific styles */
+        .chat-container {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            background-color: var(--bg-tertiary);
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .chat-input-area input {
+            flex-grow: 1;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .chat-input-area button {
+            padding: 0.75rem 1rem;
+            background-color: var(--accent-primary);
+            color: white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .chat-input-area button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        /* File Upload specific styles */
+        #drop-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+
+        #drop-area.hover-effect { /* Custom class for hover effect */
+            background-color: var(--nav-link-hover-bg);
+            border-color: var(--accent-primary);
+        }
+        #file-list {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        #predict-button {
+            margin-top: 1rem;
+        }
+        #upload-result {
+            margin-top: 1rem;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+        /* Churn Alerts specific styles */
+        .churn-alert-item {
+            background-color: var(--alert-seen-bg);
+            color: var(--alert-seen-text);
+        }
+        .churn-alert-item.new-alert {
+            background-color: var(--alert-new-bg);
+            color: var(--alert-new-text);
+        }
+        .churn-alert-item .text-red-500 {
+            color: var(--error-text);
+        }
+    </style>
+</head>
+<body data-theme="dark" class="flex flex-col min-h-screen">
+    <header class="top-bar flex items-center justify-between px-4 py-2">
+        <div class="flex items-center space-x-2">
+            <img src="https://placehold.co/32x32/6d28d9/ffffff?text=BI" alt="Bill Icon" class="w-8 h-8 mr-2 rounded-md">
+            <div class="flex flex-col">
+                <h1 class="text-2xl font-bold text-gray-50">فَاتُورةWise</h1>
+                <p class="text-xs text-gray-400">From Invoice to Intelligent Decisions</p>
+            </div>
+        </div>
+        <div class="theme-switch-wrapper">
+            <i class="fas fa-sun text-xl" id="sun-icon"></i>
+            <label class="theme-switch">
+                <input type="checkbox" id="theme-toggle">
+                <span class="slider"></span>
+            </label>
+            <i class="fas fa-moon text-xl" id="moon-icon"></i>
+        </div>
+    </header>
+
+    <div id="sidebar-trigger"></div>
+
+    <aside id="sidebar" class="sidebar flex flex-col items-center py-4 space-y-4">
+        <div id="menu-toggle" class="sidebar-top-item flex items-center mb-4">
+            <i class="fas fa-bars text-xl cursor-pointer"></i>
+            <span>Menu</span>
+        </div>
+
+        <nav class="flex-grow w-full">
+            <ul>
+                <li class="mb-2">
+                    <a href="#" data-page="home" class="nav-link flex items-center p-3 rounded-lg w-full">
+                        <i class="fas fa-home"></i> <span>Home</span>
+                    </a>
+                </li>
+                <li class="mb-2">
+                    <a href="#" data-page="upload-bill" class="nav-link flex items-center p-3 rounded-lg w-full">
+                        <i class="fas fa-file-invoice-dollar"></i> <span>E-entry</span>
+                    </a>
+                </li>
+                <li class="mb-2">
+                    <a href="#" data-page="chatbot" class="nav-link flex items-center p-3 rounded-lg w-full">
+                        <i class="fas fa-comments"></i> <span>Su'al</span>
+                    </a>
+                </li>
+                <li class="mb-2">
+                    <a href="#" data-page="report" data-report-prompt="true" class="nav-link flex items-center p-3 rounded-lg w-full">
+                        <i class="fas fa-chart-line"></i> <span>Taqrīr</span>
+                    </a>
+                </li>
+                <li class="mb-2">
+                    <a href="#" data-page="dashboard" class="nav-link flex items-center p-3 rounded-lg w-full">
+                        <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="mb-2">
+                    <a href="#" data-page="advisor" class="nav-link flex items-center p-3 rounded-lg w-full">
+                        <i class="fas fa-user-tie"></i> <span>Advisor</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <div id="churn-alerts-link" data-page="churn-alerts" class="mt-auto pt-4 border-t cursor-pointer rounded-lg w-full" style="border-color: var(--color-border-header);">
+            <div class="flex items-center p-3 rounded-lg relative">
+                <i class="fas fa-bell text-yellow-500"></i>
+                <span class="font-medium">Churn Lock Alerts</span>
+                <span id="churn-alert-count" class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">0</span>
+            </div>
+        </div>
+    </aside>
+
+    <main id="main-content" class="main-content flex-grow">
+        <div id="page-home" class="page-content block">
+            <div class="general-container">
+                <header class="flex items-center justify-between mb-8 pb-4 border-b border-gray-700">
+                    <h2 class="text-3xl font-semibold flex-grow text-center md:text-left">Welcome on board</h2>
+                </header>
+                <h3 class="text-2xl font-bold mb-4">Home Overview</h3>
+                <div class="bg-gray-800 p-6 rounded-lg shadow-md" style="background-color: var(--bg-secondary);">
+                    <p class="mb-4">Welcome to فَاتُورةWise System. Here you can find a quick overview of your recent activities.</p>
+                    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="p-4 rounded-lg shadow-sm" style="background-color: var(--bg-tertiary);">
+                            <h4 class="text-lg font-semibold mb-2">Recent Bills</h4> <p>Last bill uploaded: May 15, 2025</p>
+                        </div>
+                        <div class="p-4 rounded-lg shadow-sm" style="background-color: var(--bg-tertiary);">
+                            <h4 class="text-lg font-semibold mb-2">Chatbot Activity</h4> <p>Last interaction: 2 hours ago</p>
+                        </div>
+                        <div class="p-4 rounded-lg shadow-sm" style="background-color: var(--bg-tertiary);">
+                            <h4 class="text-lg font-semibold mb-2">Advisor Insights</h4> <p>New recommendations available.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-upload-bill" class="page-content hidden">
+            <div class="general-container">
+                <h3 class="text-2xl font-bold mb-4">Upload Your Bill</h3>
+                <div class="p-6 rounded-lg shadow-md" style="background-color: var(--bg-secondary);">
+                    <p class="mb-4">Easily upload the bill here for inserting into the database</p>
+                    <div id="drop-area" class="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer">
+                        <i class="fas fa-cloud-upload-alt text-5xl mb-4" style="color: var(--text-secondary);"></i>
+                        <p class="text-lg" style="color: var(--text-secondary);">Drag and drop your file here or <span style="color: var(--accent-light);" class="font-semibold">Browse</span></p>
+                        <button type="button" onclick="event.stopPropagation(); document.getElementById('file-input').click()" class="mt-4 px-6 py-2 rounded-lg general-button !w-auto">Browse Files</button>
+                    </div>
+                    <input type="file" class="hidden" id="file-input">
+
+                    <div class="flex justify-center mt-4">
+                        <div id="file-list" class="hidden mt-4 p-3 border rounded-md" style="background-color: var(--bg-tertiary); border-color: var(--border-color); color: var(--text-primary);"></div>
+                    </div>
+
+                    <div class="flex justify-center mt-4">
+                        <button id="predict-button" class="hidden px-6 py-2 rounded-lg general-button !w-auto">Insert</button>
+                    </div>
+                    <div id="upload-result" class="mt-4 p-3 rounded-lg whitespace-pre-wrap" style="background-color: var(--bg-tertiary); color: var(--text-primary);"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-chatbot" class="page-content hidden">
+            <div class="general-container">
+                <h3 class="text-2xl font-bold mb-4">Su'al</h3>
+                <div class="p-6 rounded-lg shadow-md min-h-[600px] flex flex-col" style="background-color: var(--bg-secondary);">
+                    <div id="chat-messages" class="flex-grow overflow-y-auto mb-4 p-4 rounded-lg chat-container">
+                        <div class="mb-2 p-2 rounded-lg self-start max-w-xl" style="background-color: var(--bg-tertiary); color: var(--text-primary);">
+                            <p>مرحبا, كيف استطيع مساعدتك؟</p>
+                        </div>
+                    </div>
+                    <div class="flex chat-input-area">
+                        <input type="text" id="chat-input" placeholder="Type your message..." class="flex-grow p-3 rounded-l-lg border focus:outline-none focus:ring-2" style="background-color: var(--bg-tertiary); border-color: var(--border-color); color: var(--text-primary); focus-ring-color: var(--accent-primary);">
+                        <button id="chat-send" class="px-6 py-3 rounded-r-lg general-button !w-auto">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-report" class="page-content hidden">
+            <div class="general-container">
+                <h3 class="text-2xl font-bold mb-4">Taqrīr</h3>
+                <div class="p-6 rounded-lg shadow-md min-h-[600px] flex flex-col" style="background-color: var(--bg-secondary);">
+                    <div id="report-chat-messages" class="flex-grow overflow-y-auto mb-4 p-4 rounded-lg chat-container">
+                        <div class="mb-2 p-2 rounded-lg self-start max-w-xl" style="background-color: var(--bg-tertiary); color: var(--text-primary);">
+                            <p>مرحبا, كيف استطيع مساعدتك فى انشاء تقرير؟</p>
+                        </div>
+                    </div>
+                    <div class="flex chat-input-area">
+                        <input type="text" id="report-chat-input" placeholder="Type your message or report request..." class="flex-grow p-3 rounded-l-lg border focus:outline-none focus:ring-2" style="background-color: var(--bg-tertiary); border-color: var(--border-color); color: var(--text-primary); focus-ring-color: var(--accent-primary);">
+                        <button id="report-chat-send" class="px-6 py-3 rounded-r-lg general-button !w-auto">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-dashboard" class="page-content hidden">
+            <div class="general-container">
+                <h3 class="text-2xl font-bold mb-4">Analytical Dashboard</h3>
+                <div class="p-6 rounded-lg shadow-md" style="background-color: var(--bg-secondary);">
+                    <p class="mb-4">This section provides a comprehensive view of your financial data and sales figures.</p>
+                    <iframe id="powerbi-iframe" title="v1" width="100%" height="800" src="https://app.powerbi.com/view?r=eyJrIjoiNmFlY2NhZjctM2Q4ZC00MzU5LTlmZGEtYTAzMzY0YTYzYzUwIiwidCI6ImRmODY3OWNkLWE4MGUtNDVkOC05OWFjLWM4M2VkN2ZmOTVhMCJ9" frameborder="0" allowFullScreen="true" class="rounded-md" style="background-color: var(--powerbi-placeholder-bg);"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-advisor" class="page-content hidden">
+            <div class="general-container">
+                <h3 class="text-2xl font-bold mb-4">Marketing Advisor</h3>
+                <p class="mb-4">
+                    If you're looking to launch a new campaign and need expert advice on the campaign details and the optimal launch time, Ask our advisor. It will provide suggestions based on company data.
+                </p>
+                <div class="mb-4 text-left">
+                    <label for="brandSelect" class="block text-sm font-bold mb-2" style="color: var(--text-secondary);">Select a Brand:</label>
+                    <select id="brandSelect" class="shadow appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline" style="background-color: var(--bg-tertiary); border-color: var(--border-color); color: var(--text-primary);">
+                        <option value="">-- Select an option (None) --</option>
+                    </select>
+                </div>
+                <button id="askAdvisorButton" class="general-button">Ask the Advisor</button>
+                <div class="loading-spinner" id="loadingSpinner"></div>
+                <div class="general-response-container" id="advisorResponseContainer">
+                    <h2>Advisor's Recommendations</h2>
+                    <div id="advisorOutput" class="output-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-churn-alerts" class="page-content hidden">
+            <div class="general-container">
+                <h3 class="text-2xl font-bold mb-4">Churn Lock Alerts</h3>
+                <div class="p-6 rounded-lg shadow-md" style="background-color: var(--bg-secondary);">
+                    <p class="mb-4">Here are your recent churn lock alerts and notifications:</p>
+                    <div id="churn-alerts-list" class="space-y-4 text-right" dir="rtl">
+                        <p id="no-churn-alerts" class="text-center hidden">No new churn alerts at this time.</p>
+                        <p id="churn-alerts-loading" class="text-center hidden"><i class="fas fa-spinner fa-spin mr-2"></i> Loading churn alerts...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-reports" class="page-content hidden">
+            <div class="general-container">
+                <h3 class="text-2xl font-bold mb-4">Reports</h3>
+                <p class="mb-6">
+                    Access your various business reports here.
+                </p>
+                <p class="text-center">Content for Reports page.</p>
+            </div>
+        </div>
+
+        <div id="page-settings" class="page-content hidden">
+            <div class="general-container">
+                <h3 class="text-2xl font-bold mb-4">Settings</h3>
+                <p class="mb-6">
+                    Configure your application settings.
+                </p>
+                <p class="text-center">Content for Settings page.</p>
+            </div>
+        </div>
+    </main>
+
+    <div id="toast-notification" class="toast-notification">
+        <i class="fas fa-bell mr-2"></i>
+        <span id="toast-message"></span>
+        <button class="close-btn" onclick="hideToast()">&times;</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Global Elements ---
+            const themeToggle = document.getElementById('theme-toggle');
+            const body = document.body;
+            const sidebar = document.getElementById('sidebar');
+            const sidebarTrigger = document.getElementById('sidebar-trigger');
+            const mainContent = document.getElementById('main-content');
+            const menuToggle = document.getElementById('menu-toggle');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const pageContents = document.querySelectorAll('.page-content');
+            const toastNotification = document.getElementById('toast-notification');
+            const toastMessage = document.getElementById('toast-message');
+            let toastTimeout;
+
+            // --- Theme Toggle Logic ---
+            function setTheme(theme) {
+                body.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+                themeToggle.checked = (theme === 'light'); // Checkbox is checked for light mode
+            }
+
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                setTheme(savedTheme);
+            } else {
+                setTheme('dark'); // Default to dark theme
+            }
+
+            themeToggle.addEventListener('change', () => {
+                if (themeToggle.checked) {
+                    setTheme('light');
+                } else {
+                    setTheme('dark');
+                }
+            });
+
+            // --- Sidebar Toggle Logic ---
+            function openSidebar() {
+                sidebar.classList.add('open');
+                mainContent.classList.add('shifted');
+            }
+
+            function closeSidebar() {
+                sidebar.classList.remove('open');
+                mainContent.classList.remove('shifted');
+            }
+
+            sidebarTrigger.addEventListener('mouseenter', openSidebar);
+            sidebar.addEventListener('mouseleave', closeSidebar);
+            menuToggle.addEventListener('click', (event) => {
+                event.stopPropagation();
+                if (sidebar.classList.contains('open')) {
+                    closeSidebar();
+                } else {
+                    openSidebar();
+                }
+            });
+            mainContent.addEventListener('click', () => {
+                if (sidebar.classList.contains('open')) {
+                    closeSidebar();
+                }
+            });
+
+            // --- Toast Notification Logic ---
+            function showToast(message, type = 'info', duration = 3000) {
+                clearTimeout(toastTimeout);
+                toastNotification.className = 'toast-notification show';
+                toastNotification.classList.add(type);
+                toastMessage.textContent = message;
+
+                toastTimeout = setTimeout(() => {
+                    hideToast();
+                }, duration);
+            }
+
+            function hideToast() {
+                toastNotification.classList.remove('show');
+                setTimeout(() => {
+                    toastNotification.classList.remove('success', 'error', 'info');
+                }, 300);
+            }
+            // Attach to global scope for onclick in HTML
+            window.hideToast = hideToast;
+
+
+            // --- Page Navigation Logic ---
+            function showPage(pageId) {
+                pageContents.forEach(page => {
+                    page.classList.add('hidden');
+                    page.classList.remove('block');
+                });
+
+                const activePage = document.getElementById(`page-${pageId}`);
+                if (activePage) {
+                    activePage.classList.remove('hidden');
+                    activePage.classList.add('block');
+                }
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active-link'); // Remove active-link from all
+                    // Special handling for Churn Alerts link, as its active state is on an inner div
+                    if (link.id === 'churn-alerts-link') {
+                        link.querySelector('div').classList.remove('active-link');
+                    }
+                    if (link.dataset.page === pageId) {
+                        link.classList.add('active-link'); // Add to active link
+                    }
+                });
+
+                // Special handling for Churn Alerts link to apply active-link to its inner div
+                const churnAlertsLink = document.getElementById('churn-alerts-link');
+                const churnAlertsLinkDiv = churnAlertsLink.querySelector('div');
+                if (churnAlertsLink.dataset.page === pageId) {
+                    churnAlertsLinkDiv.classList.add('active-link');
+                } else {
+                    churnAlertsLinkDiv.classList.remove('active-link');
+                }
+
+
+                if (pageId === 'churn-alerts') {
+                    fetchChurnAlerts();
+                } else if (pageId === 'dashboard') {
+                    embedPowerBIReport();
+                } else if (pageId === 'upload-bill') {
+                    resetFileUploadUI();
+                } else if (pageId === 'advisor') {
+                    resetAdvisorUI();
+                    fetchBrands();
+                }
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    const pageId = event.currentTarget.dataset.page;
+                    showPage(pageId);
+                });
+            });
+
+            // Initial page load: show home page and set active link
+            showPage('home');
+
+
+            // --- File Upload Logic (E-entry) ---
+            const dropArea = document.getElementById('drop-area');
+            const fileInput = document.getElementById('file-input');
+            const fileList = document.getElementById('file-list');
+            const predictButton = document.getElementById('predict-button');
+            const uploadResult = document.getElementById('upload-result');
+            let selectedFile = null;
+            const backendUrlPredict = '/predict'; // Placeholder for your backend endpoint
+
+            function resetFileUploadUI() {
+                dropArea.classList.remove('hidden');
+                fileList.innerHTML = '';
+                fileList.classList.add('hidden');
+                predictButton.classList.add('hidden');
+                uploadResult.innerText = '';
+                selectedFile = null;
+            }
+
+            fileInput.addEventListener('change', () => {
+                selectedFile = fileInput.files[0];
+                updateFileList(fileInput.files);
+                predictButton.classList.remove('hidden');
+                uploadResult.innerText = '';
+            });
+
+            predictButton.addEventListener('click', async () => {
+                if (!selectedFile) return;
+
+                const formData = new FormData();
+                formData.append("file", selectedFile);
+
+                uploadResult.innerText = 'Inserting data...';
+                predictButton.disabled = true;
+                predictButton.classList.add('hidden');
+                fileList.classList.add('hidden');
+                dropArea.classList.add('hidden');
+
+                try {
+                    const response = await fetch(backendUrlPredict, {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                    }
+
+                    const resultText = await response.text();
+                    uploadResult.innerText = `Success: ${resultText}`;
+                    showToast('File uploaded successfully!', 'success');
+
+                } catch (err) {
+                    console.error("Insertion failed:", err);
+                    uploadResult.innerText = `Insertion failed. Please try again. Error: ${err.message}`;
+                    showToast(`File upload failed: ${err.message}`, 'error');
+                    dropArea.classList.remove('hidden');
+                    fileInput.value = '';
+                    selectedFile = null;
+                } finally {
+                    predictButton.disabled = false;
+                    fileInput.value = '';
+                    selectedFile = null;
+                }
+            });
+
+            dropArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropArea.classList.add('hover-effect'); /* Use custom class for hover */
+            });
+
+            dropArea.addEventListener('dragleave', () => {
+                dropArea.classList.remove('hover-effect'); /* Use custom class for hover */
+            });
+
+            dropArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropArea.classList.remove('hover-effect'); /* Use custom class for hover */
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    selectedFile = files[0];
+                    updateFileList(files);
+                    predictButton.classList.remove('hidden');
+                    uploadResult.innerText = '';
+                }
+            });
+
+            function updateFileList(files) {
+                fileList.innerHTML = '';
+                fileList.classList.remove('hidden');
+                if (files.length > 0) {
+                    const ul = document.createElement('ul');
+                    const li = document.createElement('li');
+                    li.textContent = `Selected file: ${files[0].name}`;
+                    li.className = "text-gray-300"; /* Use Tailwind class directly */
+                    ul.appendChild(li);
+                    fileList.appendChild(ul);
+                }
+            }
+
+            dropArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            // --- Chatbot Logic (Su'al and Taqrir) ---
+            const chatSend = document.getElementById('chat-send');
+            const chatInput = document.getElementById('chat-input');
+            const chatMessages = document.getElementById('chat-messages');
+            const backendUrlChat = '/chat';
+
+            const reportChatSend = document.getElementById('report-chat-send');
+            const reportChatInput = document.getElementById('report-chat-input');
+            const reportChatMessages = document.getElementById('report-chat-messages');
+            const backendUrlReportChat = '/chat'; // Assuming same endpoint for simplicity, adjust if different
+
+            function addMessageToChat(chatContainer, message, isUser, downloadUrl = null) {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = `p-2 rounded-lg max-w-xl ${isUser ? 'bg-purple-600 text-white self-end ml-auto' : 'bg-gray-600 text-gray-200 self-start'}`;
+                // Apply theme colors to chat messages
+                msgDiv.style.backgroundColor = isUser ? 'var(--accent-primary)' : 'var(--bg-tertiary)';
+                msgDiv.style.color = isUser ? 'white' : 'var(--text-primary)';
+
+
+                if (downloadUrl) {
+                    const parts = message.split('هنا');
+                    const textBeforeLink = document.createTextNode(parts[0]);
+                    const link = document.createElement('a');
+                    link.href = downloadUrl;
+                    link.textContent = 'هنا';
+                    link.className = 'text-blue-300 underline hover:text-blue-100';
+                    // Apply theme colors to link
+                    link.style.color = 'var(--accent-light)';
+                    link.style.textDecorationColor = 'var(--accent-light)';
+                    link.target = '_blank';
+
+                    msgDiv.appendChild(textBeforeLink);
+                    msgDiv.appendChild(link);
+                    if (parts[1]) {
+                        const textAfterLink = document.createTextNode(parts[1]);
+                        msgDiv.appendChild(textAfterLink);
+                    }
+                } else {
+                    if (message.includes('**')) {
+                        const processedMessage = message.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                        msgDiv.innerHTML = processedMessage;
+                    } else {
+                        msgDiv.textContent = message;
+                    }
+                }
+
+                chatContainer.appendChild(msgDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+
+            async function sendChatMessage(inputElement, sendButton, chatContainer, apiUrl, isReportChat = false) {
+                const message = inputElement.value.trim();
+                if (!message) return;
+
+                addMessageToChat(chatContainer, message, true);
+                inputElement.value = '';
+                inputElement.disabled = true;
+                sendButton.disabled = true;
+
+                const loadingMsgDiv = document.createElement('div');
+                loadingMsgDiv.className = 'p-2 rounded-lg self-start';
+                loadingMsgDiv.style.backgroundColor = 'var(--bg-tertiary)';
+                loadingMsgDiv.style.color = 'var(--text-primary)';
+                loadingMsgDiv.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Thinking...';
+                chatContainer.appendChild(loadingMsgDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+
+                try {
+                    const payload = {
+                        user_message: message
+                    };
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                    }
+
+                    const result = await response.json();
+
+                    chatContainer.removeChild(loadingMsgDiv);
+
+                    if (result && result.response) {
+                        const downloadUrl = result.download_url || null;
+                        addMessageToChat(chatContainer, result.response, false, downloadUrl);
+                    } else {
+                        addMessageToChat(chatContainer, "Sorry, I couldn't get a valid response from the chatbot.", false);
+                    }
+
+                } catch (err) {
+                    console.error("Chat failed:", err);
+                    addMessageToChat(chatContainer, `❌ An error occurred while connecting to the server: ${err.message}`, false);
+                } finally {
+                    inputElement.disabled = false;
+                    sendButton.disabled = false;
+                    inputElement.focus();
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }
+            }
+
+            chatSend.addEventListener('click', () => sendChatMessage(chatInput, chatSend, chatMessages, backendUrlChat));
+            chatInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    chatSend.click();
+                }
+            });
+
+            reportChatSend.addEventListener('click', () => sendChatMessage(reportChatInput, reportChatSend, reportChatMessages, backendUrlReportChat, true));
+            reportChatInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    reportChatSend.click();
+                }
+            });
+
+            // --- Marketing Advisor Logic ---
+            const askAdvisorButton = document.getElementById('askAdvisorButton');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const advisorResponseContainer = document.getElementById('advisorResponseContainer');
+            const advisorOutput = document.getElementById('advisorOutput');
+            const brandSelect = document.getElementById('brandSelect');
+            const advisorBackendUrl = '/ask_advisor';
+            const getBrandsUrl = '/get_brands';
+
+            function resetAdvisorUI() {
+                askAdvisorButton.style.display = 'block';
+                loadingSpinner.style.display = 'none';
+                advisorResponseContainer.style.display = 'none';
+                advisorOutput.innerHTML = '';
+                brandSelect.innerHTML = '<option value="">-- Select an option (None) --</option>';
+            }
+
+            async function fetchBrands() {
+                try {
+                    const response = await fetch(getBrandsUrl);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    if (data && data.brands && Array.isArray(data.brands)) {
+                        data.brands.forEach(brand => {
+                            const option = document.createElement('option');
+                            option.value = brand;
+                            option.textContent = brand;
+                            brandSelect.appendChild(option);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error fetching brands:', error);
+                    showToast('Could not load brands. Please try refreshing the page.', 'error');
+                }
+            }
+
+            askAdvisorButton.addEventListener('click', async function() {
+                const button = this;
+                const selectedBrand = brandSelect.value;
+                button.disabled = true;
+                button.style.display = 'none';
+                loadingSpinner.style.display = 'block';
+                advisorResponseContainer.style.display = 'none';
+                advisorOutput.innerHTML = '';
+
+                try {
+                    const response = await fetch(advisorBackendUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ user_desired_brand: selectedBrand })
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (data && typeof data.recommendations === 'string') {
+                        let processedHtml = data.recommendations.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                        processedHtml = processedHtml.replace(/\*/g, '');
+                        advisorOutput.innerHTML = processedHtml;
+                    } else {
+                        advisorOutput.innerHTML = `<p style="color: var(--error-text);">Error: Unexpected response format from advisor.</p>`;
+                    }
+
+                    advisorResponseContainer.style.display = 'block';
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    advisorOutput.innerHTML = `<p style="color: var(--error-text);">Error: ${error.message || error}</p>`;
+                    advisorResponseContainer.style.display = 'block';
+                    showToast(`Advisor request failed: ${error.message || error}`, 'error');
+                } finally {
+                    loadingSpinner.style.display = 'none';
+                    button.disabled = false;
+                    button.style.display = 'block'; // Show button again
+                }
+            });
+
+            // --- Churn Alerts Logic ---
+            const churnAlertsLink = document.getElementById('churn-alerts-link');
+            const churnAlertsList = document.getElementById('churn-alerts-list');
+            const noChurnAlertsMessage = document.getElementById('no-churn-alerts');
+            const churnAlertsLoading = document.getElementById('churn-alerts-loading');
+            const churnAlertCount = document.getElementById('churn-alert-count');
+            const CHURN_ALERTS_API_URL = '/get-churn-alerts';
+            const MARK_SEEN_API_URL = '/mark-churn-alert-as-seen';
+            let previouslyUnseenAlertNames = new Set();
+
+            async function fetchChurnAlerts() {
+                const isOnChurnAlertsPage = document.getElementById('page-churn-alerts').classList.contains('block');
+                if (isOnChurnAlertsPage) {
+                    churnAlertsList.innerHTML = '';
+                    noChurnAlertsMessage.classList.add('hidden');
+                    churnAlertsLoading.classList.remove('hidden');
+                }
+                
+                let currentUnseenAlertNames = new Set();
+
+                try {
+                    const response = await fetch(CHURN_ALERTS_API_URL);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const alerts = await response.json();
+
+                    if (isOnChurnAlertsPage) {
+                        churnAlertsLoading.classList.add('hidden');
+                    }
+
+                    if (alerts.length === 0) {
+                        if (isOnChurnAlertsPage) {
+                            noChurnAlertsMessage.classList.remove('hidden');
+                        }
+                        churnAlertCount.textContent = '0';
+                        previouslyUnseenAlertNames.clear();
+                    } else {
+                        if (isOnChurnAlertsPage) {
+                            churnAlertsList.innerHTML = '';
+                        }
+                        
+                        alerts.forEach(alert => {
+                            const alertDiv = document.createElement('div');
+                            alertDiv.classList.add('p-4', 'rounded-lg', 'shadow-sm', 'flex', 'items-center', 'justify-between', 'transition-colors', 'duration-200', 'churn-alert-item');
+                            alertDiv.classList.add(alert.seen ? '' : 'new-alert'); // Add 'new-alert' class for styling
+                            
+                            alertDiv.innerHTML = `
+                                <div>
+                                    <p class="font-semibold">${alert.name} - Churn Probability: ${(alert.churn_probability * 100).toFixed(1)}%</p>
+                                    <p class="text-sm">${alert.cause}</p>
+                                    <p class="text-xs ${alert.seen ? 'text-gray-500 dark:text-gray-400' : 'text-red-500 font-bold'}">${alert.seen ? 'Seen' : 'NEW'}</p>
+                                </div>
+                                ${!alert.seen ? `<button data-name="${alert.name}" class="mark-seen-btn px-3 py-1 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors duration-200">Mark as Seen</button>` : ''}
+                            `;
+                            if (isOnChurnAlertsPage) {
+                                churnAlertsList.appendChild(alertDiv);
+                            }
+
+                            if (!alert.seen) {
+                                currentUnseenAlertNames.add(alert.name);
+                            }
+                        });
+
+                        churnAlertCount.textContent = currentUnseenAlertNames.size;
+
+                        const newAlertsDetected = Array.from(currentUnseenAlertNames).filter(name => !previouslyUnseenAlertNames.has(name));
+                        if (newAlertsDetected.length > 0) {
+                            showToast(`New churn alerts: ${newAlertsDetected.length} found!`, 'info');
+                        }
+                        previouslyUnseenAlertNames = new Set(currentUnseenAlertNames);
+
+                        if (isOnChurnAlertsPage) {
+                            document.querySelectorAll('.mark-seen-btn').forEach(button => {
+                                button.addEventListener('click', async (event) => {
+                                    const nameToMark = event.target.dataset.name;
+                                    await markChurnAlertAsSeen(nameToMark);
+                                });
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error fetching churn alerts:', error);
+                    if (isOnChurnAlertsPage) {
+                        churnAlertsLoading.classList.add('hidden');
+                        churnAlertsList.innerHTML = `<p class="text-center" style="color: var(--error-text);">Error loading alerts: ${error.message}</p>`;
+                    }
+                    churnAlertCount.textContent = '0';
+                    showToast('Failed to load churn alerts!', 'error');
+                }
+            }
+
+            async function markChurnAlertAsSeen(name) {
+                try {
+                    const response = await fetch(`${MARK_SEEN_API_URL}/${name}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.detail || 'Failed to mark alert as seen.');
+                    }
+
+                    showToast(`Alert for ${name} marked as seen.`, 'success');
+                    fetchChurnAlerts(); // Re-fetch alerts to update the UI
+                } catch (error) {
+                    console.error('Error marking alert as seen:', error);
+                    showToast(`Failed to mark alert for ${name}: ${error.message}`, 'error');
+                }
+            }
+
+            // --- Power BI Embedding Placeholder ---
+            function embedPowerBIReport() {
+                const container = document.getElementById('powerbi-iframe'); // Target the iframe directly
+                if (container) {
+                    // The iframe src is already set in the HTML.
+                    // If dynamic embedding was needed, it would be done here using Power BI JS API.
+                    console.log("Power BI report iframe is present. Ensure its src is correct.");
+                }
+            }
+        });
+    </script>
+</body>
+</html>
